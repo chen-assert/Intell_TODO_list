@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+        android:id="@+id/layout"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#00000000"
+>
+    <com.google.android.gms.ads.AdView
+            xmlns:ads="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/adView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            ads:adSize="BANNER"
+            ads:adUnitId="ca-app-pub-3940256099942544/6300978111" android:layout_alignParentStart="true">
+    </com.google.android.gms.ads.AdView>
+    <com.wang.avi.AVLoadingIndicatorView
+            android:id="@+id/avi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/AVLoadingIndicatorView.Large"
+            android:visibility="gone"
+            app:indicatorName="BallClipRotateMultipleIndicator"
+            app:indicatorColor="?attr/colorAccent"
+            android:layout_centerInParent="true"/>
+    <android.support.design.widget.AppBarLayout
+            android:id="@+id/app_bar"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                app:popupTheme="@style/AppTheme.PopupOverlay"
+                app:contentInsetStart="0dp"
+                app:contentInsetStartWithNavigation="0dp"
+        />
+
+        <android.support.design.widget.TabLayout
+                android:id="@+id/tl_tab"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@color/colorPrimary"
+                app:tabMode="scrollable"
+        >
+
+        </android.support.design.widget.TabLayout>
+    </android.support.design.widget.AppBarLayout>
+
+
+    <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            app:srcCompat="@drawable/ic_action_add"
+            app:backgroundTint="@color/colorAccent"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="18dp"
+            android:layout_above="@+id/adView"/>
+
+    <android.support.constraint.ConstraintLayout
+            android:id="@+id/header"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/app_bar"
+    >
+        <ImageView
+                android:layout_width="0dp"
+                android:layout_height="20dp"
+                android:id="@+id/list_imageView"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintEnd_toStartOf="@+id/list_textView"
+                android:gravity="center"
+                app:layout_constraintHorizontal_weight="0.2"
+        />
+        <TextView
+                android:text="task name"
+                android:textColor="@android:color/darker_gray"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/list_textView"
+                app:layout_constraintEnd_toStartOf="@+id/list_textView2"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintStart_toEndOf="@+id/list_imageView"
+                app:layout_constraintHorizontal_weight="1"
+                android:textSize="16sp"
+                android:gravity="center"
+        />
+        <TextView
+                android:text="priority"
+                android:textColor="@android:color/darker_gray"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/list_textView2"
+                app:layout_constraintEnd_toStartOf="@+id/list_textView3"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintStart_toEndOf="@+id/list_textView"
+                app:layout_constraintHorizontal_weight="0.4"
+                android:textSize="16sp"
+                android:gravity="center"
+        />
+        <TextView
+                android:text="remain"
+                android:textColor="@android:color/darker_gray"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/list_textView3"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintStart_toEndOf="@+id/list_textView2"
+                android:textSize="16sp"
+                android:gravity="center"
+                app:layout_constraintHorizontal_weight="0.4"
+        />
+
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.v4.view.ViewPager
+            android:id="@+id/vp_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/header"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    >
+    </android.support.v4.view.ViewPager>
+</RelativeLayout>
