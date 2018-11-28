@@ -1,8 +1,8 @@
 package jingruichen.Intell_TODOlist;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,13 +27,13 @@ public class MyFragment extends Fragment {
 
     List<Map<String, Object>> data = new ArrayList<>();
 
-    public static Fragment newInstance(int index,String pageName) {
+    public static Fragment newInstance(int index, String pageName) {
         MyFragment fragment = new MyFragment();
         Bundle bundle = new Bundle();
         bundle.putInt(KEY, index);
         bundle.putString(KEY2, pageName);
         fragment.setArguments(bundle);
-        if(llist.get(index).isEmpty()) {
+        if (llist.get(index).isEmpty()) {
             llist.get(index).add(pageName);
         }
         return fragment;
@@ -44,7 +44,7 @@ public class MyFragment extends Fragment {
         super.onCreate(savedInstanceState);
         Bundle bundle = getArguments();
         mIndex = bundle.getInt(KEY);
-        pageName=bundle.getString(KEY2);
+        pageName = bundle.getString(KEY2);
 
     }
 
@@ -58,10 +58,19 @@ public class MyFragment extends Fragment {
         int[] to = {R.id.list_imageView, R.id.list_textView, R.id.list_textView2, R.id.list_textView3};
         adapter = new SimpleAdapter(this.getContext(), data, R.layout.list_items, from, to);
         listView.setAdapter(adapter);
+        final MyFragment myFragment=this;
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //Snackbar.make(view, String.valueOf(mIndex)+"-"+String.valueOf(position), Snackbar.LENGTH_LONG).show();
+                //position+1 because the 0 index saved the page name
+                AlertDialog.Builder builder = new AlertDialog.Builder(parent.getContext());
+                ViewGroup layout = (ViewGroup) getLayoutInflater().inflate(R.layout.dialogs, null);
+                AlertView alert = new AlertView();
+                alert.addEvent(layout, builder, parent.getContext(), null, mIndex, position+1,myFragment,adapter);
+                alert.bbb(builder);
+                //adapter.notifyDataSetChanged();
+                //update();
             }
         });
         return view;
@@ -76,20 +85,20 @@ public class MyFragment extends Fragment {
         }
     }
 
-    private void update() {
-        Map<String, Object> t = new HashMap<>();
+    public void update() {
+        Map<String, Object> t;
         data.clear();
         /*
         t.put("img", R.drawable.ic_action_favorite_record);
         t.put("text1", "text1");
         t.put("text2", "text2");
         t.put("text3", "text3");
-        */
         data.add(t);
-        int count=0;
+        */
+        int count = 0;
         for (Object o : llist.get(mIndex)) {
             count++;
-            if(count==1)continue;
+            if (count == 1) continue;
             t = new HashMap<>();
             t.put("img", R.drawable.ic_action_favorite_record);
             t.put("text1", ((Item) o).name);

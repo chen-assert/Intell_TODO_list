@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 ViewGroup layout = (ViewGroup) getLayoutInflater().inflate(R.layout.dialogs, null);
                 AlertView alert = new AlertView();
-                alert.addEvent(layout, builder, MainActivity.this, MainActivity.this, -1,-1);
+                alert.addEvent(layout, builder, MainActivity.this, MainActivity.this, -1,-1,null,null);
                 alert.bbb(builder);
             }
         });

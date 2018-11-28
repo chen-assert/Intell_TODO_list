@@ -8,14 +8,10 @@ import android.content.DialogInterface;
 import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.DatePicker;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.TimePicker;
+import android.widget.*;
 
 import java.util.Calendar;
 
-import static jingruichen.Intell_TODOlist.MainActivity.cookie;
 import static jingruichen.Intell_TODOlist.MainActivity.llist;
 import static jingruichen.Intell_TODOlist.MainActivity.tabLayout;
 
@@ -31,18 +27,21 @@ public class AlertView {
     int hour;
     int minute;
 
+    //really confusing...
+    //pos1-x cor
+    //pos2-y cor
     public void addEvent(ViewGroup layout, AlertDialog.Builder builder, final Context context,
-                         final MainActivity activity, final int pos1,final int pos2) {
-        if(pos1==-1&&pos2==-1) {
+                         final MainActivity activity, final int pos1, final int pos2, final MyFragment myFragment, final SimpleAdapter adapter) {
+        final EditText edit1 = layout.findViewById(R.id.name);
+        final EditText edit2 = layout.findViewById(R.id.priority);
+        final TextView edit3 = layout.findViewById(R.id.additional);
+        final TextView text1 = layout.findViewById(R.id.timeText);
+        final TextView text2 = layout.findViewById(R.id.dateText);
+        if (pos1 == -1 && pos2 == -1) {
             builder.setTitle("Add new event");
             builder.setIcon(R.drawable.ic_action_plus1);
             builder.setView(layout);
             final int index = tabLayout.getSelectedTabPosition();
-            final EditText edit1 = layout.findViewById(R.id.name);
-            final EditText edit2 = layout.findViewById(R.id.priority);
-            final TextView edit3 = layout.findViewById(R.id.additional);
-            final TextView text1 = layout.findViewById(R.id.timeText);
-            final TextView text2 = layout.findViewById(R.id.dateText);
             c = Calendar.getInstance();
             year = c.get(Calendar.YEAR);
             month = c.get(Calendar.MONTH);
@@ -56,9 +55,9 @@ public class AlertView {
                     final String name = edit1.getText().toString();
                     final String priority = edit2.getText().toString();
                     final String comment = edit3.getText().toString();
-
                     llist.get(index).add(new Item(name, priority, c, comment));
                     activity.update(index);
+
                 }
             });
             builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
@@ -108,17 +107,12 @@ public class AlertView {
                 }
             });
             return;
-        }else{
-            builder.setTitle("Your event");
+        } else {
+            builder.setTitle("Event");
             builder.setIcon(R.drawable.ic_action_change);
             builder.setView(layout);
-            final int index = tabLayout.getSelectedTabPosition();
-            final EditText edit1 = layout.findViewById(R.id.name);
-            final EditText edit2 = layout.findViewById(R.id.priority);
-            final TextView edit3 = layout.findViewById(R.id.additional);
-            final TextView text1 = layout.findViewById(R.id.timeText);
-            final TextView text2 = layout.findViewById(R.id.dateText);
-            c = Calendar.getInstance();
+            Item item = (Item) llist.get(pos1).get(pos2);
+            c = item.time;
             year = c.get(Calendar.YEAR);
             month = c.get(Calendar.MONTH);
             day = c.get(Calendar.DAY_OF_MONTH);
@@ -126,14 +120,18 @@ public class AlertView {
             minute = c.get(Calendar.MINUTE);
             text1.setText(String.valueOf(hour) + ":" + String.valueOf(minute));
             text2.setText(String.valueOf(year) + "/" + String.valueOf(month) + "/" + String.valueOf(day));
-            builder.setPositiveButton("add", new DialogInterface.OnClickListener() {
+            edit1.setText(item.name);
+            edit2.setText(item.priority);
+            edit1.setText(item.comment);
+            builder.setPositiveButton("change", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     final String name = edit1.getText().toString();
                     final String priority = edit2.getText().toString();
                     final String comment = edit3.getText().toString();
+                    llist.get(pos1).set(pos2, new Item(name, priority, c, comment));
+                    myFragment.update();
+                    adapter.notifyDataSetChanged();
 
-                    llist.get(index).add(new Item(name, priority, c, comment));
-                    activity.update(index);
                 }
             });
             builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
@@ -232,8 +230,8 @@ public class AlertView {
                 new Thread() {
                     public void run() {
                         try {
-                            String username=edit1.getText().toString();
-                            String password=edit2.getText().toString();
+                            String username = edit1.getText().toString();
+                            String password = edit2.getText().toString();
                             ChatHandle handle = new ChatHandle();
                             handle.InitSocket();
                             handle.send("@login@");
@@ -242,10 +240,10 @@ public class AlertView {
                             String state = handle.receive();
                             if (state.startsWith("@successful@")) {
                                 MainActivity.cookie = handle.receive();
-                                MainActivity.username=username;
+                                MainActivity.username = username;
                                 MainActivity.title.setText(username);
-                                activity.DB.saveObject(MainActivity.cookie,"cookie");
-                                activity.DB.saveObject(MainActivity.username,"username");
+                                activity.DB.saveObject(MainActivity.cookie, "cookie");
+                                activity.DB.saveObject(MainActivity.username, "username");
                                 Snackbar.make(activity.getWindow().getDecorView(), "welcome, your cookie is " + String.valueOf(MainActivity.cookie), Snackbar.LENGTH_LONG).show();
                             } else {
                                 Snackbar.make(activity.getWindow().getDecorView(), "Login fail", Snackbar.LENGTH_LONG).show();
