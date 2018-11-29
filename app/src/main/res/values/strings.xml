@@ -84,7 +84,14 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">User name</string>
-    <string name="nav_header_subtitle">example@example.com</string>
+    <string name="nav_header_subtitle"></string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
+    <string name="download">Download</string>
+    <string name="upload">Upload</string>
+    <string name="login">Login</string>
+    <string name="logout">Logout</string>
+    <string name="import_">Import</string>
+    <string name="export_">Export</string>
+    <string name="onedrive_support">Onedrive Support</string>
 </resources>

@@ -7,32 +7,32 @@
         <item
                 android:id="@+id/nav_import"
                 android:icon="@drawable/ic_menu_import"
-                android:title="Download"/>
+                android:title="@string/download"/>
         <item
                 android:id="@+id/nav_export"
                 android:icon="@drawable/ic_menu_export"
-                android:title="Upload"/>
+                android:title="@string/upload"/>
         <item
                 android:id="@+id/nav_login"
                 android:icon="@drawable/ic_menu_login"
-                android:title="Login"/>
+                android:title="@string/login"/>
         <item
                 android:id="@+id/nav_logout"
                 android:icon="@drawable/ic_menu_logout"
-                android:title="Logout"/>
+                android:title="@string/logout"/>
     </group>
 
-    <item android:title="Onedrive Support">
+    <item android:title="@string/onedrive_support">
         <menu>
 
             <item
                     android:id="@+id/nav_import_2"
-                    android:icon="@drawable/ic_menu_import"
-                    android:title="Import(onedriver)"/>
+                    android:icon="@drawable/ic_file_download"
+                    android:title="@string/import_"/>
             <item
                     android:id="@+id/nav_export_2"
-                    android:icon="@drawable/ic_menu_export"
-                    android:title="Export(onedriver)"/>
+                    android:icon="@drawable/ic_file_upload"
+                    android:title="@string/export_"/>
         </menu>
     </item>
 

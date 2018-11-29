@@ -5,18 +5,22 @@ import java.util.Calendar;
 
 public class Item implements Serializable {
     public String name;
-    public String priority;
+    public int priority;
     public Calendar time;
     public String comment;
     public boolean favorite;
     public int notifacation;
 
-    public Item(String name, String priority, Calendar time,String comment){
+    public Item(String name, int priority, Calendar time,String comment,boolean favorite){
         this.name=name;
         this.priority=priority;
         this.time=time;
         this.comment=comment;
-        this.favorite=false;
-        this.notifacation=-1;
+        this.favorite=favorite;
+        this.notifacation=0;
+    }
+    public Item(String name, int priority, Calendar time,String comment,boolean favorite,int notifacation){
+        this(name,priority,time,comment,favorite);
+        this.notifacation=notifacation;
     }
 }

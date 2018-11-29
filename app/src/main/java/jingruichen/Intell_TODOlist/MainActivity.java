@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -53,24 +54,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static String cookie;
     public static String username;
     public static TextView title;
+    public static TextView subtitle;
+    public static DrawerLayout drawer;
+    public static NavigationView navigationView;
+    public static Menu nav_Menu;
+    public static AdView mAdView;
 
     private void init(int sta) {
         cookie = (String) DB.getObject("cookie");
         username = (String) DB.getObject("username");
         if (sta == -1) {
             llist = new LinkedList<>();
-            for (int i = 0; i < 20; i++) {
+            for (int i = 0; i < 5; i++) {
                 llist.add(new LinkedList<>());
-            }
-            for (int i = 0; i < 20; i++) {
-                llist.get(i).clear();
             }
             fragmentList = new LinkedList<>();
         } else if (sta == 0) {
             llist = (LinkedList<LinkedList>) DB.getObject("llistkey1");
             if (llist == null) {
                 llist = new LinkedList<>();
-                for (int i = 0; i < 20; i++) {
+                for (int i = 0; i < 5; i++) {
                     llist.add(new LinkedList<>());
                 }
             }
@@ -82,15 +85,38 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         viewPager.setAdapter(fragmentAdapter);
         tabLayout = findViewById(R.id.tl_tab);
         tabLayout.setupWithViewPager(viewPager);
+        int count = 0;
+        for (LinkedList i : llist) {
+            if (i != null) {
+                //set to null means it is already be deleted
+                if (!i.isEmpty()) {
+                    fragmentList.add((MyFragment) MyFragment.newInstance(count, (String) i.get(0)));
+                } else {
+                    fragmentList.add((MyFragment) MyFragment.newInstance(count, "Page " + String.valueOf(count + 1)));
+                }
+            }
+            count++;
+        }
+/*
         fragmentList.add((MyFragment) MyFragment.newInstance(0, "Page 1"));
         fragmentList.add((MyFragment) MyFragment.newInstance(1, "Page 2"));
         fragmentList.add((MyFragment) MyFragment.newInstance(2, "Page 3"));
         fragmentList.add((MyFragment) MyFragment.newInstance(3, "Page 4"));
         fragmentList.add((MyFragment) MyFragment.newInstance(4, "Page 5"));
+*/
         fragmentAdapter.notifyDataSetChanged();
+        for (int i = 0, o = 0; i < llist.size() && o < tabLayout.getTabCount(); i++) {
+            LinkedList tl = llist.get(i);
+            if (!tl.isEmpty()) {
+                tabLayout.getTabAt(o).setText((String) llist.get(i).get(0));
+                o++;
+            }
+        }
+/*
         for (int i = 0; i < tabLayout.getTabCount(); i++) {
             tabLayout.getTabAt(i).setText((String) llist.get(i).get(0));
         }
+*/
     }
 
 
@@ -98,15 +124,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_super);
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+            }
+        };
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        nav_Menu = navigationView.getMenu();
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -115,13 +152,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 ViewGroup layout = (ViewGroup) getLayoutInflater().inflate(R.layout.dialogs, null);
                 AlertView alert = new AlertView();
-                alert.addEvent(layout, builder, MainActivity.this, MainActivity.this, -1,-1,null,null);
+                alert.addEvent(layout, builder, MainActivity.this, MainActivity.this, -1, -1, null, null);
                 alert.bbb(builder);
             }
         });
         // Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713
         MobileAds.initialize(this, "ca-app-pub-3940256099942544~3347511713");
-        AdView mAdView = findViewById(R.id.adView);
+        mAdView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
         init(0);
@@ -129,8 +166,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navView = navigationView.findViewById(R.id.nav_view);
         View headerView = navView.getHeaderView(0);
         title = headerView.findViewById(R.id.nav_title);
-        if (username != null) title.setText(username);
-        else title.setText("guest");
+        subtitle = headerView.findViewById(R.id.nav_subtitle);
+        if (username != null) {
+            myHandler.sendEmptyMessage(30);
+        } else {
+            myHandler.sendEmptyMessage(40);
+        }
 
 
         avi = findViewById(R.id.avi);
@@ -219,20 +260,44 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AlertView alert;
         AlertView_setting alert_setting;
         switch (item.getItemId()) {
+            case R.id.action_addpage:
+                llist.add(new LinkedList());
+                llist.getLast().add("Page "+String.valueOf(llist.size()));
+                fragmentList.add((MyFragment) MyFragment.newInstance(llist.size()-1, (String) llist.getLast().get(0)));
+                fragmentAdapter.notifyDataSetChanged();
+                for (int i = 0, o = 0; i < llist.size() && o < tabLayout.getTabCount(); i++) {
+                    LinkedList tl = llist.get(i);
+                    if (tl!=null&&!tl.isEmpty()) {
+                        tabLayout.getTabAt(o).setText((String) llist.get(i).get(0));
+                        o++;
+                    }
+                }
+                tabLayout.getTabAt(tabLayout.getTabCount()-1).select();
+                break;
             case R.id.action_share:
-                //todo:pricture
+                Bitmap bitmap = Util.activityShot(this);
+                String file = Util.saveToSD(bitmap);
+                /*
                 Intent sendIntent = new Intent();
                 sendIntent.setAction(Intent.ACTION_SEND);
                 sendIntent.putExtra(Intent.EXTRA_TEXT, Util.Base64encode(llist));
                 sendIntent.setType("text/plain");
                 startActivity(sendIntent);
+                 */
+                Intent shareIntent = new Intent();
+                shareIntent.setAction(Intent.ACTION_SEND);
+                shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(file));
+                shareIntent.setType("image/jpeg");
+                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                startActivity(Intent.createChooser(shareIntent, "share to"));
+
                 break;
             case R.id.action_clear:
                 init(-1);
                 update(tabLayout.getSelectedTabPosition());
                 Toast.makeText(getApplicationContext(), "clear all", Toast.LENGTH_SHORT).show();
                 break;
-            case R.id.setting:
+            case R.id.action_setting:
                 builder = new AlertDialog.Builder(MainActivity.this);
                 ViewGroup layout4 = (ViewGroup) getLayoutInflater().inflate(R.layout.dialogs_setting, null);
                 alert_setting = new AlertView_setting();
@@ -250,9 +315,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.action_notification:
                 Calendar mCalendar = Calendar.getInstance();
                 mCalendar.setTimeInMillis(System.currentTimeMillis());
-                mCalendar.add(Calendar.SECOND, 10);
+                mCalendar.add(Calendar.SECOND, 30);
                 startRemind(mCalendar.get(Calendar.DAY_OF_WEEK) - 1, mCalendar.get(Calendar.HOUR_OF_DAY),
-                        mCalendar.get(Calendar.MINUTE), 100, 0, "testcode", "testcourse");
+                        mCalendar.get(Calendar.MINUTE), 100, 0, "test_title", "test_content");
                 break;
         }
 
@@ -302,12 +367,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             ViewGroup layout = (ViewGroup) getLayoutInflater().inflate(R.layout.dialogs_login, null);
             AlertView alert = new AlertView();
-            alert.login(layout, builder, MainActivity.this, MainActivity.this);
+            alert.login(layout, builder, MainActivity.this, MainActivity.this, myHandler);
             alert.bbb(builder);
         } else if (id == R.id.nav_logout) {
             username = null;
             cookie = null;
-            title.setText("guest");
+            myHandler.sendEmptyMessage(40);
+            mAdView.setVisibility(View.VISIBLE);
             Snackbar.make(getWindow().getDecorView(), "You have logout", Snackbar.LENGTH_LONG).show();
         } else if (id == R.id.nav_import) {
             new Thread() {
@@ -323,16 +389,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         if (t != null) {
                             llist = (LinkedList<LinkedList>) t;
                             //DB.saveObject(llist, "llistkey1");
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            Snackbar.make(getWindow().getDecorView(), "import success", Snackbar.LENGTH_LONG).show();
                         } else {
-                            Snackbar.make(getWindow().getDecorView(), "Opps, seems something wrong happened", Snackbar.LENGTH_LONG).show();
+                            sthwrong();
                         }
                     } catch (Exception e) {
-                        Snackbar.make(getWindow().getDecorView(), "Opps, seems something wrong happened", Snackbar.LENGTH_LONG).show();
-                    }
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
                         e.printStackTrace();
+                        sthwrong();
                     }
                     myHandler.sendEmptyMessage(3);
                     myHandler.sendEmptyMessage(2);
@@ -350,6 +418,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         handle.send(cookie);
                         handle.send(Util.Base64encode(llist));
                     } catch (Exception e) {
+                        e.printStackTrace();
                         Snackbar.make(getWindow().getDecorView(), "Opps, seems something wrong happened", Snackbar.LENGTH_LONG).show();
                     }
                     try {
@@ -358,6 +427,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         e.printStackTrace();
                     }
                     myHandler.sendEmptyMessage(2);
+                    Snackbar.make(getWindow().getDecorView(), "export success", Snackbar.LENGTH_LONG).show();
                 }
             }.start();
         }
@@ -376,6 +446,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 avi.hide();
             } else if (msg.what == 3) {
                 update(tabLayout.getSelectedTabPosition());
+            } else if (msg.what == 10) {
+                mAdView.setVisibility(View.VISIBLE);
+            } else if (msg.what == 20) {
+                mAdView.setVisibility(View.INVISIBLE);
+            } else if (msg.what == 30) {
+                nav_Menu.findItem(R.id.nav_login).setVisible(false);
+                nav_Menu.findItem(R.id.nav_logout).setVisible(true);
+                nav_Menu.findItem(R.id.nav_import).setVisible(true);
+                nav_Menu.findItem(R.id.nav_export).setVisible(true);
+                title.setText(username);
+                subtitle.setText("id:" + cookie);
+            } else if (msg.what == 40) {
+                nav_Menu.findItem(R.id.nav_login).setVisible(true);
+                nav_Menu.findItem(R.id.nav_logout).setVisible(false);
+                nav_Menu.findItem(R.id.nav_import).setVisible(false);
+                nav_Menu.findItem(R.id.nav_export).setVisible(false);
+                title.setText("guest");
+                subtitle.setText("");
             }
         }
     };
@@ -414,7 +502,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Snackbar.make(getWindow().getDecorView(), "Opps, seems something wrong happened", Snackbar.LENGTH_LONG).show();
     }
 
-    private void startRemind(int day, int hour, int minute, int code, int before, String coursecode, String coursename) {
+    private void startRemind(int day, int hour, int minute, int code, int before, String title, String content) {
         Calendar mCalendar = Calendar.getInstance();
         long systemTime = System.currentTimeMillis();
         mCalendar.setTimeInMillis(System.currentTimeMillis());
@@ -443,8 +531,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AlarmReceiver alarmReceiver = new AlarmReceiver();
         Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
         intent.putExtra("id", code);
-        intent.putExtra("coursecode", coursecode);
-        intent.putExtra("coursename", coursename);
+        intent.putExtra("title", title);
+        intent.putExtra("content", content);
         intent.putExtra("before", valueOf(before));
 
         PendingIntent pi = PendingIntent.getBroadcast(MainActivity.this, code, intent, 0);

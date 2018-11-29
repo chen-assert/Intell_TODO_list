@@ -25,11 +25,11 @@ public class AlarmReceiver extends BroadcastReceiver {
         mBuilder.setDefaults(Notification.DEFAULT_ALL);
         mBuilder.setSmallIcon(R.drawable.ic_notifications);
         int id=intent.getIntExtra("id",1);
-        String coursecode=intent.getStringExtra("coursecode");
-        String coursename=intent.getStringExtra("coursename");
+        String title=intent.getStringExtra("title");
+        String content=intent.getStringExtra("content");
         String before=intent.getStringExtra("before");
-        mBuilder.setContentTitle("Class "+coursecode+" would start!");
-        mBuilder.setContentText("Class "+coursename+" would start in next "+before+" minutes!");
+        mBuilder.setContentTitle(title);
+        mBuilder.setContentText(content);
         Intent resultIntent = new Intent(context, MainActivity.class);
         PendingIntent resultPendingIntent = PendingIntent.getActivity( context, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT );
         mBuilder.setContentIntent(resultPendingIntent);

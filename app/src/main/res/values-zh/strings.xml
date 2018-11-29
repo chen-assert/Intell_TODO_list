@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="download">下载</string>
+    <string name="upload">上传</string>
+    <string name="login">登陆</string>
+    <string name="logout">登出</string>
+    <string name="import_">导入</string>
+    <string name="export_">导出</string>
+    <string name="onedrive_support">Onedrive支持</string>
+</resources>

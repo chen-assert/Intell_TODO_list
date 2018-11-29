@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto"
-      xmlns:tools="http://schemas.android.com/tools"
-    >
+>
 
 
     <!-- Settings, should always be in the overflow -->
@@ -22,26 +21,30 @@
             android:icon="@drawable/ic_action_search"
             app:showAsAction="always"/>
     <item
-            android:id="@+id/setting"
+            android:id="@+id/action_addpage"
+            android:title="add new page"
+            android:orderInCategory="30"
+            app:showAsAction="never"/>
+    <item
+            android:id="@+id/action_setting"
             android:title="setting"
-            android:orderInCategory="40"
+            android:orderInCategory="60"
             app:showAsAction="never"/>
     <item
             android:id="@+id/action_clear"
             android:title="clear all"
-            android:orderInCategory="50"
+            android:orderInCategory="40"
             app:showAsAction="never"/>
     <item
             android:id="@+id/action_advertise"
             android:title="turn on/off adv"
-            android:orderInCategory="60"
+            android:orderInCategory="50"
             app:showAsAction="never"/>
     <item
             android:id="@+id/action_notification"
             android:title="notification test"
             android:orderInCategory="70"
             app:showAsAction="never"/>
-
 
 
 </menu>

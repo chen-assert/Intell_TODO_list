@@ -58,7 +58,7 @@ public class MyFragment extends Fragment {
         int[] to = {R.id.list_imageView, R.id.list_textView, R.id.list_textView2, R.id.list_textView3};
         adapter = new SimpleAdapter(this.getContext(), data, R.layout.list_items, from, to);
         listView.setAdapter(adapter);
-        final MyFragment myFragment=this;
+        final MyFragment myFragment = this;
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -67,7 +67,7 @@ public class MyFragment extends Fragment {
                 AlertDialog.Builder builder = new AlertDialog.Builder(parent.getContext());
                 ViewGroup layout = (ViewGroup) getLayoutInflater().inflate(R.layout.dialogs, null);
                 AlertView alert = new AlertView();
-                alert.addEvent(layout, builder, parent.getContext(), null, mIndex, position+1,myFragment,adapter);
+                alert.addEvent(layout, builder, parent.getContext(), null, mIndex, position + 1, myFragment, adapter);
                 alert.bbb(builder);
                 //adapter.notifyDataSetChanged();
                 //update();
@@ -100,13 +100,17 @@ public class MyFragment extends Fragment {
             count++;
             if (count == 1) continue;
             t = new HashMap<>();
-            t.put("img", R.drawable.ic_action_favorite_record);
+
+            t.put("img", ((Item) o).favorite ? R.drawable.ic_action_favorite_record : null);
             t.put("text1", ((Item) o).name);
             t.put("text2", ((Item) o).priority);
             long remain = ((Item) o).time.getTimeInMillis() - Calendar.getInstance().getTimeInMillis();
             String str = "";
-            if (remain > 3600 * 1000) str = String.valueOf(remain / 3600 / 1000) + " hours";
-            else if (remain > 0) str = "<1 hour";
+            if (remain > 3600L * 1000L * 24L * 365L) str = String.valueOf(remain / 3600 / 1000 / 24 / 365) + " years";
+            else if (remain > 3600L * 1000L * 24L * 30L) str = String.valueOf(remain / 3600 / 1000 / 24 / 30) + " months";
+            else if (remain > 3600L * 1000L * 24L) str = String.valueOf(remain / 3600 / 1000 / 24) + " days";
+            else if (remain > 3600L * 1000L) str = String.valueOf(remain / 3600 / 1000) + " hours";
+            else if (remain > 0L) str = "<1 hour";
             else str = "overdue";
             t.put("text3", str);
             data.add(t);

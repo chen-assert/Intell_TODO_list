@@ -5,6 +5,7 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,8 @@ import java.util.Calendar;
 
 import static jingruichen.Intell_TODOlist.MainActivity.llist;
 import static jingruichen.Intell_TODOlist.MainActivity.tabLayout;
+import static jingruichen.Intell_TODOlist.Util.makedate;
+import static jingruichen.Intell_TODOlist.Util.maketime;
 
 public class AlertView {
     public void bbb(AlertDialog.Builder builder) {
@@ -37,6 +40,11 @@ public class AlertView {
         final TextView edit3 = layout.findViewById(R.id.additional);
         final TextView text1 = layout.findViewById(R.id.timeText);
         final TextView text2 = layout.findViewById(R.id.dateText);
+        final Spinner spinner2 = layout.findViewById(R.id.spinner2);
+        final Switch switch_ = layout.findViewById(R.id.switch1);
+        final String[] notifacation_type = {"notification off", "1 week before", "1 day before", "1 hour before"};
+        ArrayAdapter<String> adapter2 = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, notifacation_type);
+        spinner2.setAdapter(adapter2);
         if (pos1 == -1 && pos2 == -1) {
             builder.setTitle("Add new event");
             builder.setIcon(R.drawable.ic_action_plus1);
@@ -48,14 +56,21 @@ public class AlertView {
             day = c.get(Calendar.DAY_OF_MONTH);
             hour = c.get(Calendar.HOUR_OF_DAY);
             minute = c.get(Calendar.MINUTE);
-            text1.setText(String.valueOf(hour) + ":" + String.valueOf(minute));
-            text2.setText(String.valueOf(year) + "/" + String.valueOf(month) + "/" + String.valueOf(day));
+            text1.setText(maketime(hour, minute));
+            text2.setText(makedate(year, month, day));
             builder.setPositiveButton("add", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     final String name = edit1.getText().toString();
                     final String priority = edit2.getText().toString();
                     final String comment = edit3.getText().toString();
-                    llist.get(index).add(new Item(name, priority, c, comment));
+                    final boolean favorate = switch_.isChecked();
+                    int parseInt;
+                    try {
+                        parseInt = Integer.parseInt(priority);
+                    } catch (Exception e) {
+                        parseInt = 100;
+                    }
+                    llist.get(index).add(new Item(name, parseInt, c, comment, favorate, spinner2.getSelectedItemPosition()));
                     activity.update(index);
 
                 }
@@ -73,7 +88,7 @@ public class AlertView {
                         public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
                             hour = selectedHour;
                             minute = selectedMinute;
-                            text1.setText(String.valueOf(hour) + ":" + String.valueOf(minute));
+                            text1.setText(maketime(hour, minute));
                             c.set(Calendar.HOUR_OF_DAY, hour);
                             c.set(Calendar.MINUTE, minute);
                             c.set(Calendar.YEAR, year);
@@ -94,7 +109,7 @@ public class AlertView {
                             year = selectedyear;
                             month = selectedmonth + 1;
                             day = selectedday;
-                            text2.setText(String.valueOf(year) + "/" + String.valueOf(month) + "/" + String.valueOf(day));
+                            text2.setText(makedate(year, month, day));
                             c.set(Calendar.HOUR_OF_DAY, hour);
                             c.set(Calendar.MINUTE, minute);
                             c.set(Calendar.YEAR, year);
@@ -118,17 +133,28 @@ public class AlertView {
             day = c.get(Calendar.DAY_OF_MONTH);
             hour = c.get(Calendar.HOUR_OF_DAY);
             minute = c.get(Calendar.MINUTE);
-            text1.setText(String.valueOf(hour) + ":" + String.valueOf(minute));
-            text2.setText(String.valueOf(year) + "/" + String.valueOf(month) + "/" + String.valueOf(day));
+            text1.setText(maketime(hour, minute));
+            text2.setText(makedate(year, month, day));
             edit1.setText(item.name);
-            edit2.setText(item.priority);
+            edit2.setText(String.valueOf(item.priority));
             edit1.setText(item.comment);
+            switch_.setChecked(item.favorite);
+            spinner2.setSelection(item.notifacation);
             builder.setPositiveButton("change", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     final String name = edit1.getText().toString();
                     final String priority = edit2.getText().toString();
                     final String comment = edit3.getText().toString();
-                    llist.get(pos1).set(pos2, new Item(name, priority, c, comment));
+                    final boolean favorate = switch_.isChecked();
+                    int parseInt;
+                    try {
+                        parseInt = Integer.parseInt(priority);
+                    } catch (Exception e) {
+                        parseInt = 100;
+                    }
+                    llist.get(pos1).set(pos2, new Item(name, parseInt, c, comment, favorate, spinner2.getSelectedItemPosition()));
+                    DbHelper2 DB = new DbHelper2(context);
+                    DB.saveObject(llist, "llistkey1");
                     myFragment.update();
                     adapter.notifyDataSetChanged();
 
@@ -147,7 +173,7 @@ public class AlertView {
                         public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
                             hour = selectedHour;
                             minute = selectedMinute;
-                            text1.setText(String.valueOf(hour) + ":" + String.valueOf(minute));
+                            text1.setText(maketime(hour,minute));
                             c.set(Calendar.HOUR_OF_DAY, hour);
                             c.set(Calendar.MINUTE, minute);
                             c.set(Calendar.YEAR, year);
@@ -168,7 +194,7 @@ public class AlertView {
                             year = selectedyear;
                             month = selectedmonth + 1;
                             day = selectedday;
-                            text2.setText(String.valueOf(year) + "/" + String.valueOf(month) + "/" + String.valueOf(day));
+                            text2.setText(makedate(year, month, day));
                             c.set(Calendar.HOUR_OF_DAY, hour);
                             c.set(Calendar.MINUTE, minute);
                             c.set(Calendar.YEAR, year);
@@ -191,7 +217,7 @@ public class AlertView {
         final int index = tabLayout.getSelectedTabPosition();
         final EditText edit1 = layout.findViewById(R.id.name);
         edit1.setText(tabLayout.getTabAt(index).getText());
-        builder.setPositiveButton("add", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("change", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 final String name = edit1.getText().toString();
                 llist.get(index).set(0, name);
@@ -220,7 +246,7 @@ public class AlertView {
     }
 
     public void login(ViewGroup layout, AlertDialog.Builder builder, final Context context,
-                      final MainActivity activity) {
+                      final MainActivity activity, final Handler myHandler) {
         builder.setTitle("Login");
         builder.setView(layout);
         final EditText edit1 = layout.findViewById(R.id.username);
@@ -241,12 +267,45 @@ public class AlertView {
                             if (state.startsWith("@successful@")) {
                                 MainActivity.cookie = handle.receive();
                                 MainActivity.username = username;
-                                MainActivity.title.setText(username);
                                 activity.DB.saveObject(MainActivity.cookie, "cookie");
                                 activity.DB.saveObject(MainActivity.username, "username");
-                                Snackbar.make(activity.getWindow().getDecorView(), "welcome, your cookie is " + String.valueOf(MainActivity.cookie), Snackbar.LENGTH_LONG).show();
+                                Snackbar.make(activity.getWindow().getDecorView(), "welcome " + username + "(cookie:" + String.valueOf(MainActivity.cookie) + ")", Snackbar.LENGTH_LONG).show();
+                                myHandler.sendEmptyMessage(30);
+                                myHandler.sendEmptyMessage(20);
                             } else {
                                 Snackbar.make(activity.getWindow().getDecorView(), "Login fail", Snackbar.LENGTH_LONG).show();
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Snackbar.make(activity.getWindow().getDecorView(), "Opps, seems something wrong happened", Snackbar.LENGTH_LONG).show();
+                        }
+                    }
+                }.start();
+            }
+        });
+        builder.setNeutralButton("register", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                new Thread() {
+                    public void run() {
+                        try {
+                            String username = edit1.getText().toString();
+                            String password = edit2.getText().toString();
+                            ChatHandle handle = new ChatHandle();
+                            handle.InitSocket();
+                            handle.send("@register@");
+                            handle.send(username);
+                            handle.send(password);
+                            String state = handle.receive();
+                            if (state.startsWith("@successful@")) {
+                                MainActivity.cookie = handle.receive();
+                                MainActivity.username = username;
+                                activity.DB.saveObject(MainActivity.cookie, "cookie");
+                                activity.DB.saveObject(MainActivity.username, "username");
+                                Snackbar.make(activity.getWindow().getDecorView(), "welcome " + username + "(cookie:" + String.valueOf(MainActivity.cookie) + ")", Snackbar.LENGTH_LONG).show();
+                                myHandler.sendEmptyMessage(30);
+                                myHandler.sendEmptyMessage(20);
+                            } else {
+                                Snackbar.make(activity.getWindow().getDecorView(), "Register fail", Snackbar.LENGTH_LONG).show();
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
