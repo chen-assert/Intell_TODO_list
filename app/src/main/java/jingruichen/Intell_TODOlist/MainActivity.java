@@ -42,6 +42,8 @@ import static jingruichen.Intell_TODOlist.Util.readText;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     protected static final int FILE_REQUESTCODE = 10;
     public static Map<Integer, Integer> smap = new HashMap<>();
+    //every list in llist corresponding to a page
+    //and in every list, the first object is its page name, then are items
     public static LinkedList<LinkedList> llist;
     public final DbHelper2 DB = new DbHelper2(this);
     public final int[] colors = {0xa0ef5350, 0xa0EC407A, 0xa0AB47BC, 0xa07E57C2, 0xa05C6BC0, 0xa042A5F5, 0xa029B6F6,
@@ -60,6 +62,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static Menu nav_Menu;
     public static AdView mAdView;
 
+    /**
+     *
+     * @param sta the state you want to init to......
+     *            -1 means clear to default state
+     *            0 means first load when app opening
+     *            1 means you just only want to refresh all but not change date
+     */
     private void init(int sta) {
         cookie = (String) DB.getObject("cookie");
         username = (String) DB.getObject("username");
@@ -68,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             for (int i = 0; i < 5; i++) {
                 llist.add(new LinkedList<>());
             }
-            fragmentList = new LinkedList<>();
+            //fragmentList = new LinkedList<>();
         } else if (sta == 0) {
             llist = (LinkedList<LinkedList>) DB.getObject("llistkey1");
             if (llist == null) {
@@ -80,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         ViewPager viewPager = findViewById(R.id.vp_content);
         android.support.v4.app.FragmentManager manager = getSupportFragmentManager();
-        if (fragmentList == null) fragmentList = new LinkedList<>();
+        fragmentList = new LinkedList<>();
         fragmentAdapter = new FragmentAdapter(manager, fragmentList);
         viewPager.setAdapter(fragmentAdapter);
         tabLayout = findViewById(R.id.tl_tab);
@@ -107,16 +116,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragmentAdapter.notifyDataSetChanged();
         for (int i = 0, o = 0; i < llist.size() && o < tabLayout.getTabCount(); i++) {
             LinkedList tl = llist.get(i);
-            if (!tl.isEmpty()) {
+            if (tl != null && !tl.isEmpty()) {
                 tabLayout.getTabAt(o).setText((String) llist.get(i).get(0));
+                tabLayout.getTabAt(o).setContentDescription(String.valueOf(i));
                 o++;
             }
         }
-/*
-        for (int i = 0; i < tabLayout.getTabCount(); i++) {
-            tabLayout.getTabAt(i).setText((String) llist.get(i).get(0));
-        }
-*/
     }
 
 
@@ -169,8 +174,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         subtitle = headerView.findViewById(R.id.nav_subtitle);
         if (username != null) {
             myHandler.sendEmptyMessage(30);
+            myHandler.sendEmptyMessage(20);
         } else {
             myHandler.sendEmptyMessage(40);
+            myHandler.sendEmptyMessage(10);
         }
 
 
@@ -203,13 +210,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 ViewGroup layout = (ViewGroup) getLayoutInflater().inflate(R.layout.dialogs_page, null);
                 AlertView alert = new AlertView();
-                alert.pageName(layout, builder, MainActivity.this, MainActivity.this);
+                alert.pageName(layout, builder, MainActivity.this, MainActivity.this, myHandler);
                 alert.bbb(builder);
             }
         });
 
     }
 
+    //todo:maywork but not sure
     public void update(int index) {
         for (int i = Math.max(0, index - 1); i <= Math.min(index + 1, fragmentList.size() - 1); i++) {
             Fragment frg = fragmentList.get(i);
@@ -224,8 +232,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         //fragmentAdapter.notifyDataSetChanged();
         DB.saveObject(llist, "llistkey1");
-        for (int i = 0; i < tabLayout.getTabCount(); i++) {
-            tabLayout.getTabAt(i).setText((String) llist.get(i).get(0));
+        for (int i = 0, o = 0; i < llist.size() && o < tabLayout.getTabCount(); i++) {
+            LinkedList tl = llist.get(i);
+            if (tl != null && !tl.isEmpty()) {
+                tabLayout.getTabAt(o).setText((String) llist.get(i).get(0));
+                tabLayout.getTabAt(o).setContentDescription(String.valueOf(i));
+                o++;
+            }
         }
     }
 
@@ -262,17 +275,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch (item.getItemId()) {
             case R.id.action_addpage:
                 llist.add(new LinkedList());
-                llist.getLast().add("Page "+String.valueOf(llist.size()));
-                fragmentList.add((MyFragment) MyFragment.newInstance(llist.size()-1, (String) llist.getLast().get(0)));
+                llist.getLast().add("Page " + String.valueOf(llist.size()));
+                fragmentList.add((MyFragment) MyFragment.newInstance(llist.size() - 1, (String) llist.getLast().get(0)));
                 fragmentAdapter.notifyDataSetChanged();
-                for (int i = 0, o = 0; i < llist.size() && o < tabLayout.getTabCount(); i++) {
-                    LinkedList tl = llist.get(i);
-                    if (tl!=null&&!tl.isEmpty()) {
-                        tabLayout.getTabAt(o).setText((String) llist.get(i).get(0));
-                        o++;
-                    }
-                }
-                tabLayout.getTabAt(tabLayout.getTabCount()-1).select();
+                tabLayout.getTabAt(tabLayout.getTabCount() - 1).select();
+                update(tabLayout.getTabCount() - 1);
                 break;
             case R.id.action_share:
                 Bitmap bitmap = Util.activityShot(this);
@@ -373,7 +380,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             username = null;
             cookie = null;
             myHandler.sendEmptyMessage(40);
-            mAdView.setVisibility(View.VISIBLE);
+            myHandler.sendEmptyMessage(10);
             Snackbar.make(getWindow().getDecorView(), "You have logout", Snackbar.LENGTH_LONG).show();
         } else if (id == R.id.nav_import) {
             new Thread() {
@@ -445,6 +452,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             } else if (msg.what == 2) {
                 avi.hide();
             } else if (msg.what == 3) {
+                init(1);
                 update(tabLayout.getSelectedTabPosition());
             } else if (msg.what == 10) {
                 mAdView.setVisibility(View.VISIBLE);

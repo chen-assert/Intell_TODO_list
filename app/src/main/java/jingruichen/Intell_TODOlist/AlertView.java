@@ -12,9 +12,9 @@ import android.view.ViewGroup;
 import android.widget.*;
 
 import java.util.Calendar;
+import java.util.LinkedList;
 
-import static jingruichen.Intell_TODOlist.MainActivity.llist;
-import static jingruichen.Intell_TODOlist.MainActivity.tabLayout;
+import static jingruichen.Intell_TODOlist.MainActivity.*;
 import static jingruichen.Intell_TODOlist.Util.makedate;
 import static jingruichen.Intell_TODOlist.Util.maketime;
 
@@ -49,7 +49,8 @@ public class AlertView {
             builder.setTitle("Add new event");
             builder.setIcon(R.drawable.ic_action_plus1);
             builder.setView(layout);
-            final int index = tabLayout.getSelectedTabPosition();
+            final int index_intab = tabLayout.getSelectedTabPosition();
+            final int index_inlist=Integer.parseInt((String) tabLayout.getTabAt(tabLayout.getSelectedTabPosition()).getContentDescription());
             c = Calendar.getInstance();
             year = c.get(Calendar.YEAR);
             month = c.get(Calendar.MONTH);
@@ -70,8 +71,8 @@ public class AlertView {
                     } catch (Exception e) {
                         parseInt = 100;
                     }
-                    llist.get(index).add(new Item(name, parseInt, c, comment, favorate, spinner2.getSelectedItemPosition()));
-                    activity.update(index);
+                    llist.get(index_inlist).add(new Item(name, parseInt, c, comment, favorate, spinner2.getSelectedItemPosition()));
+                    activity.update(index_intab);
 
                 }
             });
@@ -164,6 +165,16 @@ public class AlertView {
                 public void onClick(DialogInterface dialog, int which) {
                 }
             });
+            builder.setNeutralButton("delete", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    llist.get(pos1).remove(pos2);
+                    DbHelper2 DB = new DbHelper2(context);
+                    DB.saveObject(llist, "llistkey1");
+                    myFragment.update();
+                    adapter.notifyDataSetChanged();
+                }
+            });
             text1.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -211,37 +222,32 @@ public class AlertView {
     }
 
     public void pageName(ViewGroup layout, AlertDialog.Builder builder, final Context context,
-                         final MainActivity activity) {
+                         final MainActivity activity, final Handler myHandler) {
         builder.setTitle("Page name");
         builder.setView(layout);
-        final int index = tabLayout.getSelectedTabPosition();
+        final int index_inlist =Integer.parseInt((String) tabLayout.getTabAt(tabLayout.getSelectedTabPosition()).getContentDescription());
+        final int index_intab = tabLayout.getSelectedTabPosition();
         final EditText edit1 = layout.findViewById(R.id.name);
-        edit1.setText(tabLayout.getTabAt(index).getText());
+        edit1.setText(tabLayout.getTabAt(index_intab).getText());
         builder.setPositiveButton("change", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 final String name = edit1.getText().toString();
-                llist.get(index).set(0, name);
-                tabLayout.getTabAt(index).setText(edit1.getText());
-                activity.update(index);
+                llist.get(index_inlist).set(0, name);
+                tabLayout.getTabAt(index_intab).setText(edit1.getText());
+                activity.update(index_inlist);
             }
         });
         builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
             }
         });
-        //todo:repair
-        /*
         builder.setNeutralButton("delete", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-                fragmentList.remove(index);
-                llist.remove(index);
-                fragmentAdapter.notifyDataSetChanged();
-                for (int i = 0; i < tabLayout.getTabCount(); i++) {
-                    tabLayout.getTabAt(i).setText((String) llist.get(i).get(0));
-                }
+                llist.set(index_inlist,null);
+                myHandler.sendEmptyMessage(3);
             }
         });
-        */
+
         return;
     }
 

@@ -95,25 +95,45 @@ public class MyFragment extends Fragment {
         t.put("text3", "text3");
         data.add(t);
         */
-        int count = 0;
-        for (Object o : llist.get(mIndex)) {
-            count++;
-            if (count == 1) continue;
-            t = new HashMap<>();
 
-            t.put("img", ((Item) o).favorite ? R.drawable.ic_action_favorite_record : null);
-            t.put("text1", ((Item) o).name);
-            t.put("text2", ((Item) o).priority);
-            long remain = ((Item) o).time.getTimeInMillis() - Calendar.getInstance().getTimeInMillis();
-            String str = "";
-            if (remain > 3600L * 1000L * 24L * 365L) str = String.valueOf(remain / 3600 / 1000 / 24 / 365) + " years";
-            else if (remain > 3600L * 1000L * 24L * 30L) str = String.valueOf(remain / 3600 / 1000 / 24 / 30) + " months";
-            else if (remain > 3600L * 1000L * 24L) str = String.valueOf(remain / 3600 / 1000 / 24) + " days";
-            else if (remain > 3600L * 1000L) str = String.valueOf(remain / 3600 / 1000) + " hours";
-            else if (remain > 0L) str = "<1 hour";
-            else str = "overdue";
-            t.put("text3", str);
-            data.add(t);
+        try {
+            final long timeInMillis = Calendar.getInstance().getTimeInMillis();
+            Collections.sort(llist.get(mIndex), (Comparator) (o1, o2) -> {
+                if(o1 instanceof String){
+                    return -1;
+                }else if(o2 instanceof String){
+                    return 1;
+                }
+                else {
+                    Item i1= (Item) o1;
+                    Item i2= (Item) o2;
+                    return Math.toIntExact((i1.time.getTimeInMillis() - timeInMillis) * i1.priority - (i2.time.getTimeInMillis() - timeInMillis) * i2.priority);
+                }
+            });
+            int count = 0;
+            for (Object o : llist.get(mIndex)) {
+                count++;
+                if (count == 1) continue;
+                t = new HashMap<>();
+                t.put("img", ((Item) o).favorite ? R.drawable.ic_action_favorite_record : null);
+                t.put("text1", ((Item) o).name);
+                t.put("text2", ((Item) o).priority);
+                long remain = ((Item) o).time.getTimeInMillis() - timeInMillis;
+                String str = "";
+                if (remain > 3600L * 1000L * 24L * 365L)
+                    str = String.valueOf(remain / 3600 / 1000 / 24 / 365) + " years";
+                else if (remain > 3600L * 1000L * 24L * 30L)
+                    str = String.valueOf(remain / 3600 / 1000 / 24 / 30) + " months";
+                else if (remain > 3600L * 1000L * 24L) str = String.valueOf(remain / 3600 / 1000 / 24) + " days";
+                else if (remain > 3600L * 1000L) str = String.valueOf(remain / 3600 / 1000) + " hours";
+                else if (remain > 0L) str = "<1 hour";
+                else str = "overdue";
+                t.put("text3", str);
+                data.add(t);
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
         }
     }
 }
