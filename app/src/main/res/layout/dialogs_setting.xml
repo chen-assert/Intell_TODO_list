@@ -21,7 +21,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="background colour"/>
+                    android:text="theme"/>
 
             <Spinner
                     android:id="@+id/spinner1"
@@ -39,17 +39,6 @@
                 android:layout_marginTop="8dp"
                 android:orientation="horizontal">
 
-            <TextView
-                    android:id="@+id/textView2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:text="font colours"/>
-
-            <Spinner
-                    android:id="@+id/spinner2"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
         </LinearLayout>
 
         <LinearLayout
@@ -66,7 +55,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="font type"/>
+                    android:text="font"/>
 
             <Spinner
                     android:id="@+id/spinner3"

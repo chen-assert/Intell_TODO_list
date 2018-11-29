@@ -12,9 +12,9 @@ import android.view.ViewGroup;
 import android.widget.*;
 
 import java.util.Calendar;
-import java.util.LinkedList;
 
-import static jingruichen.Intell_TODOlist.MainActivity.*;
+import static jingruichen.Intell_TODOlist.MainActivity.llist;
+import static jingruichen.Intell_TODOlist.MainActivity.tabLayout;
 import static jingruichen.Intell_TODOlist.Util.makedate;
 import static jingruichen.Intell_TODOlist.Util.maketime;
 
@@ -42,7 +42,7 @@ public class AlertView {
         final TextView text2 = layout.findViewById(R.id.dateText);
         final Spinner spinner2 = layout.findViewById(R.id.spinner2);
         final Switch switch_ = layout.findViewById(R.id.switch1);
-        final String[] notifacation_type = {"notification off", "1 week before", "1 day before", "1 hour before"};
+        final String[] notifacation_type = {"notification off", "1 week before", "1 day before", "1 hour before", "30 minutes before"};
         ArrayAdapter<String> adapter2 = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, notifacation_type);
         spinner2.setAdapter(adapter2);
         if (pos1 == -1 && pos2 == -1) {
@@ -50,7 +50,7 @@ public class AlertView {
             builder.setIcon(R.drawable.ic_action_plus1);
             builder.setView(layout);
             final int index_intab = tabLayout.getSelectedTabPosition();
-            final int index_inlist=Integer.parseInt((String) tabLayout.getTabAt(tabLayout.getSelectedTabPosition()).getContentDescription());
+            final int index_inlist = Integer.parseInt((String) tabLayout.getTabAt(tabLayout.getSelectedTabPosition()).getContentDescription());
             c = Calendar.getInstance();
             year = c.get(Calendar.YEAR);
             month = c.get(Calendar.MONTH);
@@ -73,7 +73,9 @@ public class AlertView {
                     }
                     llist.get(index_inlist).add(new Item(name, parseInt, c, comment, favorate, spinner2.getSelectedItemPosition()));
                     activity.update(index_intab);
-
+                    if (spinner2.getSelectedItemPosition() != 0) {
+                        activity.startRemind(year, month, day, hour, minute, 100, 30, "you have a event", "name");
+                    }
                 }
             });
             builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
@@ -138,7 +140,7 @@ public class AlertView {
             text2.setText(makedate(year, month, day));
             edit1.setText(item.name);
             edit2.setText(String.valueOf(item.priority));
-            edit1.setText(item.comment);
+            edit3.setText(item.comment);
             switch_.setChecked(item.favorite);
             spinner2.setSelection(item.notifacation);
             builder.setPositiveButton("change", new DialogInterface.OnClickListener() {
@@ -158,7 +160,9 @@ public class AlertView {
                     DB.saveObject(llist, "llistkey1");
                     myFragment.update();
                     adapter.notifyDataSetChanged();
-
+                    if (spinner2.getSelectedItemPosition() != 0) {
+                        activity.startRemind(year, month, day, hour, minute, 100, 30, "you have a event", "name");
+                    }
                 }
             });
             builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
@@ -184,7 +188,7 @@ public class AlertView {
                         public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
                             hour = selectedHour;
                             minute = selectedMinute;
-                            text1.setText(maketime(hour,minute));
+                            text1.setText(maketime(hour, minute));
                             c.set(Calendar.HOUR_OF_DAY, hour);
                             c.set(Calendar.MINUTE, minute);
                             c.set(Calendar.YEAR, year);
@@ -225,7 +229,7 @@ public class AlertView {
                          final MainActivity activity, final Handler myHandler) {
         builder.setTitle("Page name");
         builder.setView(layout);
-        final int index_inlist =Integer.parseInt((String) tabLayout.getTabAt(tabLayout.getSelectedTabPosition()).getContentDescription());
+        final int index_inlist = Integer.parseInt((String) tabLayout.getTabAt(tabLayout.getSelectedTabPosition()).getContentDescription());
         final int index_intab = tabLayout.getSelectedTabPosition();
         final EditText edit1 = layout.findViewById(R.id.name);
         edit1.setText(tabLayout.getTabAt(index_intab).getText());
@@ -243,7 +247,7 @@ public class AlertView {
         });
         builder.setNeutralButton("delete", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-                llist.set(index_inlist,null);
+                llist.set(index_inlist, null);
                 myHandler.sendEmptyMessage(3);
             }
         });

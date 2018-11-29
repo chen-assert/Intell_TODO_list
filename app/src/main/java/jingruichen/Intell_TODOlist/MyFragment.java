@@ -7,7 +7,6 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
@@ -59,19 +58,16 @@ public class MyFragment extends Fragment {
         adapter = new SimpleAdapter(this.getContext(), data, R.layout.list_items, from, to);
         listView.setAdapter(adapter);
         final MyFragment myFragment = this;
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //Snackbar.make(view, String.valueOf(mIndex)+"-"+String.valueOf(position), Snackbar.LENGTH_LONG).show();
-                //position+1 because the 0 index saved the page name
-                AlertDialog.Builder builder = new AlertDialog.Builder(parent.getContext());
-                ViewGroup layout = (ViewGroup) getLayoutInflater().inflate(R.layout.dialogs, null);
-                AlertView alert = new AlertView();
-                alert.addEvent(layout, builder, parent.getContext(), null, mIndex, position + 1, myFragment, adapter);
-                alert.bbb(builder);
-                //adapter.notifyDataSetChanged();
-                //update();
-            }
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            //Snackbar.make(view, String.valueOf(mIndex)+"-"+String.valueOf(position), Snackbar.LENGTH_LONG).show();
+            //position+1 because the 0 index saved the page name
+            AlertDialog.Builder builder = new AlertDialog.Builder(parent.getContext());
+            ViewGroup layout = (ViewGroup) getLayoutInflater().inflate(R.layout.dialogs, null);
+            AlertView alert = new AlertView();
+            alert.addEvent(layout, builder, parent.getContext(), null, mIndex, position + 1, myFragment, adapter);
+            alert.bbb(builder);
+            //adapter.notifyDataSetChanged();
+            //update();
         });
         return view;
     }
@@ -99,15 +95,25 @@ public class MyFragment extends Fragment {
         try {
             final long timeInMillis = Calendar.getInstance().getTimeInMillis();
             Collections.sort(llist.get(mIndex), (Comparator) (o1, o2) -> {
-                if(o1 instanceof String){
+                if (o1 instanceof String) {
                     return -1;
-                }else if(o2 instanceof String){
+                } else if (o2 instanceof String) {
                     return 1;
-                }
-                else {
-                    Item i1= (Item) o1;
-                    Item i2= (Item) o2;
-                    return Math.toIntExact((i1.time.getTimeInMillis() - timeInMillis) * i1.priority - (i2.time.getTimeInMillis() - timeInMillis) * i2.priority);
+                } else {
+                    Item i1 = (Item) o1;
+                    Item i2 = (Item) o2;
+                    if(i1.favorite==true){
+                        return -1;
+                    }
+                    if(i2.favorite==true){
+                        return 1;
+                    }
+                    long i1remain=i1.time.getTimeInMillis() - timeInMillis;
+                    long i2remain=i2.time.getTimeInMillis() - timeInMillis;
+                    //if(i1remain<0)return 1;
+                    //if(i2remain<0)return -1;
+                    if(i1remain * i1.priority - i2remain * i2.priority>0)return 1;
+                    else return -1;
                 }
             });
             int count = 0;
@@ -131,8 +137,7 @@ public class MyFragment extends Fragment {
                 t.put("text3", str);
                 data.add(t);
             }
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

@@ -181,10 +181,11 @@ public class Util {
     }
 
 
-    public static String makedate(int year,int month,int day){
+    public static String makedate(int year, int month, int day) {
         return String.valueOf(year) + "/" + String.valueOf(month) + "/" + String.valueOf(day);
     }
-    public static String maketime(int hour,int minute){
-        return String.format("%02d",hour) + ":" +String.format("%02d",minute);
+
+    public static String maketime(int hour, int minute) {
+        return String.format("%02d", hour) + ":" + String.format("%02d", minute);
     }
 }

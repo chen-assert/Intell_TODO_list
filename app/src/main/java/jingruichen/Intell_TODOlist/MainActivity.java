@@ -63,7 +63,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static AdView mAdView;
 
     /**
-     *
      * @param sta the state you want to init to......
      *            -1 means clear to default state
      *            0 means first load when app opening
@@ -124,10 +123,46 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    //maywork but not really sure
+    //seems work now
+    public void update(int index) {
+        for (int i = Math.max(0, index - 1); i <= Math.min(index + 1, fragmentList.size() - 1); i++) {
+            Fragment frg = fragmentList.get(i);
+            if (frg.isAdded()) {
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.setReorderingAllowed(false);
+                transaction.detach(frg);
+                transaction.attach(frg);
+                transaction.commit();
+            } else {
+            }
+        }
+        //fragmentAdapter.notifyDataSetChanged();
+        DB.saveObject(llist, "llistkey1");
+        for (int i = 0, o = 0; i < llist.size() && o < tabLayout.getTabCount(); i++) {
+            LinkedList tl = llist.get(i);
+            if (tl != null && !tl.isEmpty()) {
+                tabLayout.getTabAt(o).setText((String) llist.get(i).get(0));
+                tabLayout.getTabAt(o).setContentDescription(String.valueOf(i));
+                o++;
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        smap = (Map<Integer, Integer>) DB.getObject("setkey1");
+        if (smap == null || smap.get(1) == null) {
+            setTheme(R.style.AppTheme);
+        } else if (smap.get(1) == 0) {
+            setTheme(R.style.AppTheme);
+        } else if (smap.get(1) == 1) {
+            setTheme(R.style.AppTheme2);
+        } else if (smap.get(1) == 2) {
+            setTheme(R.style.AppTheme3);
+        }
+
         setContentView(R.layout.activity_main_super);
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -217,30 +252,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    //todo:maywork but not sure
-    public void update(int index) {
-        for (int i = Math.max(0, index - 1); i <= Math.min(index + 1, fragmentList.size() - 1); i++) {
-            Fragment frg = fragmentList.get(i);
-            if (frg.isAdded()) {
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.setReorderingAllowed(false);
-                transaction.detach(frg);
-                transaction.attach(frg);
-                transaction.commit();
-            } else {
-            }
-        }
-        //fragmentAdapter.notifyDataSetChanged();
-        DB.saveObject(llist, "llistkey1");
-        for (int i = 0, o = 0; i < llist.size() && o < tabLayout.getTabCount(); i++) {
-            LinkedList tl = llist.get(i);
-            if (tl != null && !tl.isEmpty()) {
-                tabLayout.getTabAt(o).setText((String) llist.get(i).get(0));
-                tabLayout.getTabAt(o).setContentDescription(String.valueOf(i));
-                o++;
-            }
-        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -253,8 +264,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public boolean onQueryTextSubmit(String query) {
                 //event of submit buttom
-                //todo:search(hard)
-                Toast.makeText(getApplicationContext(), query, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(MainActivity.this, SearchResult.class);
+                intent.putExtra("key", query);
+                startActivity(intent);
+                //Toast.makeText(getApplicationContext(), query, Toast.LENGTH_SHORT).show();
+
                 return true;
             }
 
@@ -323,7 +337,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Calendar mCalendar = Calendar.getInstance();
                 mCalendar.setTimeInMillis(System.currentTimeMillis());
                 mCalendar.add(Calendar.SECOND, 30);
-                startRemind(mCalendar.get(Calendar.DAY_OF_WEEK) - 1, mCalendar.get(Calendar.HOUR_OF_DAY),
+                startRemind(mCalendar.get(Calendar.YEAR), mCalendar.get(Calendar.MONTH), mCalendar.get(Calendar.DAY_OF_WEEK), mCalendar.get(Calendar.HOUR_OF_DAY),
                         mCalendar.get(Calendar.MINUTE), 100, 0, "test_title", "test_content");
                 break;
         }
@@ -426,7 +440,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         handle.send(Util.Base64encode(llist));
                     } catch (Exception e) {
                         e.printStackTrace();
-                        Snackbar.make(getWindow().getDecorView(), "Opps, seems something wrong happened", Snackbar.LENGTH_LONG).show();
+                        sthwrong();
                     }
                     try {
                         Thread.sleep(1000);
@@ -441,6 +455,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    //Intent callback
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (data == null) {
+            Snackbar.make(getWindow().getDecorView(), "Not select file!", Snackbar.LENGTH_LONG).show();
+            return;
+        }
+        if (requestCode == FILE_REQUESTCODE) {
+            //Snackbar.make(getWindow().getDecorView(), "uri:" + data.getData().getPath(), Snackbar.LENGTH_LONG).show();
+            String str = readText(data.getData(), this);
+            Object t = Base64decode(str);
+            if (t != null) {
+                llist = (LinkedList<LinkedList>) t;
+            } else {
+                Snackbar.make(getWindow().getDecorView(), "Opps, seems something wrong happened", Snackbar.LENGTH_LONG).show();
+            }
+        }
+        new Thread() {
+            public void run() {
+                myHandler.sendEmptyMessage(1);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                myHandler.sendEmptyMessage(3);
+                myHandler.sendEmptyMessage(2);
+            }
+        }.start();
     }
 
     final Handler myHandler = new Handler() {
@@ -476,63 +520,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     };
 
-    //Intent callback
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (data == null) {
-            Snackbar.make(getWindow().getDecorView(), "Not select file!", Snackbar.LENGTH_LONG).show();
-            return;
-        }
-        if (requestCode == FILE_REQUESTCODE) {
-            //Snackbar.make(getWindow().getDecorView(), "uri:" + data.getData().getPath(), Snackbar.LENGTH_LONG).show();
-            String str = readText(data.getData(), this);
-            Object t = Base64decode(str);
-            if (t != null) {
-                llist = (LinkedList<LinkedList>) t;
-            } else {
-                Snackbar.make(getWindow().getDecorView(), "Opps, seems something wrong happened", Snackbar.LENGTH_LONG).show();
-            }
-        }
-        new Thread() {
-            public void run() {
-                myHandler.sendEmptyMessage(1);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                myHandler.sendEmptyMessage(3);
-                myHandler.sendEmptyMessage(2);
-            }
-        }.start();
-    }
 
     public void sthwrong() {
         Snackbar.make(getWindow().getDecorView(), "Opps, seems something wrong happened", Snackbar.LENGTH_LONG).show();
     }
 
-    private void startRemind(int day, int hour, int minute, int code, int before, String title, String content) {
+    //before means how much time(seconds) before
+    public void startRemind(int year, int month, int day, int hour, int minute, int code, int before, String title, String content) {
         Calendar mCalendar = Calendar.getInstance();
         long systemTime = System.currentTimeMillis();
         mCalendar.setTimeInMillis(System.currentTimeMillis());
         // mCalendar.setTimeZone(TimeZone.getTimeZone("GMT+8"));
-        // sunday-1 monday-2 ... saturday-7
-        day++;
-        if (day == 8)
-            day = 1;
+
+        mCalendar.set(Calendar.YEAR, year);
+        mCalendar.set(Calendar.MONTH, month);
         mCalendar.set(Calendar.DAY_OF_WEEK, day);
         mCalendar.set(Calendar.HOUR_OF_DAY, hour);
         mCalendar.set(Calendar.MINUTE, minute);
         mCalendar.set(Calendar.SECOND, 0);
         mCalendar.set(Calendar.MILLISECOND, 0);
-        mCalendar.add(Calendar.MINUTE, -before);
-        mCalendar.add(Calendar.DAY_OF_MONTH, -7);
+        mCalendar.add(Calendar.SECOND, -before);
         long selectTime = mCalendar.getTimeInMillis();
-        // may be would be use, be sure can trigger
-        int f = 0;
-        while (systemTime > selectTime) {
-            mCalendar.add(Calendar.DAY_OF_MONTH, 7);
-            selectTime = mCalendar.getTimeInMillis();
-            if (++f > 30) break;
+
+        if (systemTime > selectTime) {
+            return;
         }
         //selectTime = mCalendar.getTimeInMillis();
         // AlarmReceiver.class is the broadcast receiver
@@ -543,18 +554,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         intent.putExtra("content", content);
         intent.putExtra("before", valueOf(before));
 
-        PendingIntent pi = PendingIntent.getBroadcast(MainActivity.this, code, intent, 0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, code, intent, 0);
         //get the AlarmManager instance
         AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
         /**
          * notice once after mCalendar.getTimeInMillis()
          */
-        // am.set(AlarmManager.RTC_WAKEUP, mCalendar.getTimeInMillis(), pi);
-        am.setRepeating(AlarmManager.RTC_WAKEUP, mCalendar.getTimeInMillis(), (1000 * 60 * 60 * 24 * 7), pi);
+        //am.set(AlarmManager.RTC_WAKEUP, mCalendar.getTimeInMillis(), pendingIntent);
+        /**
+         * repeat notice
+         */
+        //am.setRepeating(AlarmManager.RTC_WAKEUP, mCalendar.getTimeInMillis(), (1000 * 60 * 60 * 24 * 7), pendingIntent);
 
     }
 
-    private void stopRemind(int code) {
+    public void stopRemind(int code) {
         Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
         PendingIntent pi = PendingIntent.getBroadcast(MainActivity.this, code, intent, 0);
         AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
