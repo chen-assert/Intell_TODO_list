@@ -162,6 +162,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (smap.get(1) == 2) {
             setTheme(R.style.AppTheme3);
         }
+        if(smap==null)smap=new HashMap<>();
 
         setContentView(R.layout.activity_main_super);
         final Toolbar toolbar = findViewById(R.id.toolbar);
@@ -375,9 +376,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (CheckApkExist.checkApkExist(this, "com.microsoft.skydrive")) {
                 startActivity(sendIntent);
             } else {
+                //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                //        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION //隐藏虚拟按键栏
+                //        | View.SYSTEM_UI_FLAG_IMMERSIVE //防止点击屏幕时,隐藏虚拟按键栏又弹了出来
+                //);
                 Snackbar.make(getWindow().getDecorView(), "You need install a OneDrive first", Snackbar.LENGTH_LONG).setAction("Dowload", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+
+                        //Snackbar.dismiss();
+                        //隐藏SnackBar时记得恢复隐藏虚拟按键栏,不然屏幕底部会多出一块空白布局出来,和难看
+                        //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+
                         Uri uri = Uri.parse("https://onedrive.live.com");
                         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                         startActivity(intent);

@@ -73,6 +73,8 @@ public class AlertView {
                     }
                     llist.get(index_inlist).add(new Item(name, parseInt, c, comment, favorate, spinner2.getSelectedItemPosition()));
                     activity.update(index_intab);
+
+                    //test version, not fully implement
                     if (spinner2.getSelectedItemPosition() != 0) {
                         activity.startRemind(year, month, day, hour, minute, 100, 30, "you have a event", "name");
                     }
@@ -160,9 +162,7 @@ public class AlertView {
                     DB.saveObject(llist, "llistkey1");
                     myFragment.update();
                     adapter.notifyDataSetChanged();
-                    if (spinner2.getSelectedItemPosition() != 0) {
-                        activity.startRemind(year, month, day, hour, minute, 100, 30, "you have a event", "name");
-                    }
+
                 }
             });
             builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
