@@ -79,7 +79,8 @@ public class Util {
      * Activity screenCap
      *
      * @param activity
-     * @return ref:https://www.jianshu.com/p/820b2f1597d1
+     * @return Bitmap
+     * ref:https://www.jianshu.com/p/820b2f1597d1
      */
     public static Bitmap activityShot(Activity activity) {
         /*获取windows中最顶层的view*/
@@ -122,7 +123,7 @@ public class Util {
      * 存储到sdcard
      *
      * @param bmp
-     * @return
+     * @return file location
      */
     public static String saveToSD(Bitmap bmp) {
         //判断sd卡是否存在

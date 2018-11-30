@@ -45,6 +45,11 @@
             android:title="notification test"
             android:orderInCategory="70"
             app:showAsAction="never"/>
+    <item
+            android:id="@+id/action_about"
+            android:title="about"
+            android:orderInCategory="80"
+            app:showAsAction="never"/>
 
 
 </menu>

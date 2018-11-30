@@ -34,7 +34,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="url" value="jar:file:/C:/Program%20Files/JetBrains/IntelliJ%20IDEA%202018.2.6/plugins/android/lib/android.jar!/images/material_design_icons/action/ic_track_changes_black_24dp.xml" />
+                                                <entry key="url" value="jar:file:/C:/Program%20Files/JetBrains/IntelliJ%20IDEA%202018.2.6/plugins/android/lib/android.jar!/images/material_design_icons/action/ic_question_answer_black_24dp.xml" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -44,7 +44,7 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="outputName" value="ic_action_change" />
+                                      <entry key="outputName" value="ic_action_about" />
                                       <entry key="theme" value="CUSTOM" />
                                       <entry key="themeColor" value="bc6cc9" />
                                     </map>

@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (smap.get(1) == 2) {
             setTheme(R.style.AppTheme3);
         }
-        if(smap==null)smap=new HashMap<>();
+        if (smap == null) smap = new HashMap<>();
 
         setContentView(R.layout.activity_main_super);
         final Toolbar toolbar = findViewById(R.id.toolbar);
@@ -341,6 +341,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startRemind(mCalendar.get(Calendar.YEAR), mCalendar.get(Calendar.MONTH), mCalendar.get(Calendar.DAY_OF_WEEK), mCalendar.get(Calendar.HOUR_OF_DAY),
                         mCalendar.get(Calendar.MINUTE), 100, 0, "test_title", "test_content");
                 break;
+            case R.id.action_about:
+                builder = new AlertDialog.Builder(this);
+                builder.setTitle("about");
+                builder.setIcon(R.drawable.ic_action_about);
+                String str = new String("Intell TODO list ver1.01\nDeveloper: Chen Jingrui\n----2018/11/30\ngithub:https://github.com/chen-assert/Intell_TODO_list\n"+
+                        "\nLimited in MIT License\n" + "\n"+ "Copyright (c) 2018 chen-assert");
+                builder.setMessage(str);
+                builder.setCancelable(true);
+                builder.create().show();
         }
 
         return super.onOptionsItemSelected(item);
